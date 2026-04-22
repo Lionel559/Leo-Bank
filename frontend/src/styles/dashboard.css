@@ -1,0 +1,262 @@
+* {
+  box-sizing: border-box;
+}
+
+/* MAIN DASHBOARD */
+.dashboard {
+  padding: 30px;
+  background: #f4f6f9;
+  min-height: 100vh;
+  animation: fadeIn 0.5s ease;
+  width: 100%;
+}
+
+.dashboard h1 {
+  color: #222;
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================== */
+/* CARDS */
+/* ===================== */
+
+.cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1 1 250px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.balance {
+  color: #00c853;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+/* ===================== */
+/* SECTIONS */
+/* ===================== */
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.section button {
+  width: 100%;
+  padding: 12px;
+  background: #00c853;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.section button:hover {
+  background: #009624;
+}
+
+/* ===================== */
+/* SEND BOX */
+/* ===================== */
+
+.send-box {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex: 1 1 300px;
+  transition: all 0.3s ease;
+}
+
+.send-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.send-box h3 {
+  margin-bottom: 15px;
+  color: #444;
+}
+
+.send-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.send-box input:focus {
+  border: 1px solid #16c47f;
+  box-shadow: 0 0 0 2px rgba(22, 196, 127, 0.2);
+}
+
+.send-box button {
+  width: 100%;
+  padding: 10px;
+  background: #16c47f;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.send-box button:hover {
+  background: #12a66a;
+}
+
+/* ===================== */
+/* ROW (DEPOSIT / WITHDRAW) */
+/* ===================== */
+
+.row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* ===================== */
+/* TRANSACTIONS */
+/* ===================== */
+
+.transactions {
+  background: white;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #16c47f;
+  transition: 0.2s;
+}
+
+.transactions:hover {
+  background: #f9f9f9;
+}
+
+/* ===================== */
+/* MAIN CONTENT (WITH SIDEBAR) */
+/* ===================== */
+
+.main-content {
+  margin-left: 240px; /* matches sidebar width on desktop */
+  padding: 20px;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+}
+
+/* ===================== */
+/* 💻 DESKTOP (> 1024px) */
+/* ===================== */
+
+@media (min-width: 1025px) {
+  .dashboard {
+    max-width: 1200px;
+    margin: auto; /* centers dashboard content */
+  }
+}
+
+/* ===================== */
+/* 💻 TABLET (769px - 1024px) */
+/* ===================== */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .dashboard {
+    padding: 20px;
+  }
+
+  /* ✅ FIXED: sidebar still shows on tablet, so keep margin */
+  .main-content {
+    margin-left: 240px;
+    padding: 15px;
+  }
+
+  .card {
+    flex: 1 1 45%; /* 2 cards per row on tablet */
+  }
+
+  .send-box {
+    flex: 1 1 100%;
+  }
+}
+
+/* ===================== */
+/* 📱 MOBILE (<= 768px) */
+/* ===================== */
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 15px;
+  }
+
+  /* ✅ FIXED: no sidebar on mobile, so remove left margin */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 55px 15px 15px; /* top padding accounts for hamburger button */
+  }
+
+  .cards {
+    flex-direction: column;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .dashboard h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    flex: 1 1 100%;
+  }
+
+  .send-box {
+    flex: 1 1 100%;
+  }
+}

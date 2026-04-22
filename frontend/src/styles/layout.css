@@ -1,0 +1,43 @@
+/* ===========================
+   LAYOUT WRAPPER
+   =========================== */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ===========================
+   MAIN CONTENT AREA
+   =========================== */
+.main-content {
+  flex: 1;
+  margin-left: 240px; /* matches sidebar width */
+  min-height: 100vh;
+  background: #f4f6f9;
+  transition: margin-left 0.3s ease;
+  overflow-x: hidden; /* prevents horizontal scroll */
+  width: calc(100% - 240px);
+  box-sizing: border-box;
+}
+
+/* ===========================
+   TABLET (769px - 1024px)
+   =========================== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+}
+
+/* ===========================
+   MOBILE (≤ 768px)
+   =========================== */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;        /* ✅ no sidebar on mobile */
+    width: 100%;
+    padding-top: 55px;     /* space for hamburger button */
+  }
+}
