@@ -1,88 +1,53 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
+import API from "../config"
 
 function Profile() {
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user")
+    const loadProfile = async () => {
+      const token = localStorage.getItem("token")
+      const wallet_id = localStorage.getItem("wallet_id")
+      if (!token || !wallet_id) { navigate("/login"); return }
 
-      console.log("RAW user:", storedUser)
-
-      // ❌ if no user → go login
-      if (!storedUser || storedUser === "undefined") {
+      try {
+        const res = await axios.get(`${API}/balance/${wallet_id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        setUser(res.data)
+      } catch (err) {
+        console.error("Profile load error:", err)
         navigate("/login")
-        return
+      } finally {
+        setLoading(false)
       }
-
-      const parsedUser = JSON.parse(storedUser)
-
-      console.log("PARSED user:", parsedUser)
-
-      // ❌ invalid user → go login
-      if (!parsedUser || typeof parsedUser !== "object") {
-        navigate("/login")
-        return
-      }
-
-      setUser(parsedUser)
-
-    } catch (err) {
-      console.error("Profile error:", err)
-      navigate("/login")
     }
-  }, [navigate]) // ✅ IMPORTANT FIX
+    loadProfile()
+  }, [navigate])
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    navigate("/login")
-  }
-
-  // 🔥 FIX: better loading state
-  if (user === null) {
-    return <p>Loading profile...</p>
-  }
+  if (loading) return <p style={{ padding: "20px" }}>Loading profile...</p>
+  if (!user) return null
 
   return (
-    <div style={{ 
-      padding: "20px",
-      maxWidth: "600px",
-      width: "100%",
-      boxSizing: "border-box",
-      margin: "0 auto"
-
-     }}>
+    <div style={{ padding: "20px", maxWidth: "500px", width: "100%", boxSizing: "border-box" }}>
       <h2>Profile</h2>
 
-      {/* IMAGE */}
       {user.image && (
-        <img
-          src={user.image}
-          alt="profile"
-          style={{ 
-            width: "120px",
-            height: "120px",
-            maxWidth: "100%",
-            borderRadius: "50%",
-            objectFit: "cover",
-            marginBottom: "16px"
-            }}
-        />
+        <img src={user.image} alt="profile" style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", display: "block", marginBottom: "16px" }} />
       )}
 
-      <p style={{ wordBreak: "break-word" }}><strong>Name:</strong> {user.name || "N/A"}</p>
-      <p style={{ wordBreak: "break-word" }}><strong>Email:</strong> {user.email || "N/A"}</p>
-      <p><strong>Phone:</strong> {user.phone || "N/A"}</p>
-      <p><strong>Country:</strong> {user.country || "N/A"}</p>
-
-      {/* REFERRAL */}
-      <p style={{ wordBreak: "break-word" }}><strong>Referral Code:</strong> {user.referralCode || "N/A"}</p>
-
-      {/* <button onClick={handleLogout} style={{ marginTop: "20px" }}>
-        Logout
-      </button> */}
+      <div style={{ background: "white", borderRadius: "12px", padding: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+        <p style={{ marginBottom: "12px" }}><strong>Name:</strong> {user.name || "N/A"}</p>
+        <p style={{ marginBottom: "12px", wordBreak: "break-word" }}><strong>Email:</strong> {user.email || "N/A"}</p>
+        <p style={{ marginBottom: "12px" }}><strong>Phone:</strong> {user.phone || "N/A"}</p>
+        <p style={{ marginBottom: "12px" }}><strong>Country:</strong> {user.country || "N/A"}</p>
+        <p style={{ marginBottom: "12px", wordBreak: "break-all" }}><strong>Wallet ID:</strong> {user.wallet_id || "N/A"}</p>
+        <p style={{ marginBottom: 0 }}><strong>Balance:</strong> <span style={{ color: "#16c47f", fontWeight: "bold" }}>₦{user.balance ?? "0"}</span></p>
+      </div>
     </div>
   )
 }

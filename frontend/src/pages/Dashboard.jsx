@@ -3,6 +3,7 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import "../styles/dashboard.css"
 import { toast } from "react-toastify"
+import API from "../config" // ✅ USE CONFIGURED API URL
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -19,9 +20,9 @@ function Dashboard() {
     const token = localStorage.getItem("token")
     if (!wallet || !token) { navigate("/login"); return }
     try {
-      const res = await axios.get(`http://localhost:5000/balance/${wallet}`, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await axios.get(`${API}/balance/${wallet}`, { headers: { Authorization: `Bearer ${token}` } })
       setUser(res.data)
-      const tx = await axios.get(`http://localhost:5000/transactions`, { headers: { Authorization: `Bearer ${token}` } })
+      const tx = await axios.get(`${API}/transactions`, { headers: { Authorization: `Bearer ${token}` } })
       setTransactions(tx.data.transactions || [])
     } catch (err) {
       localStorage.clear(); navigate("/login")
@@ -33,7 +34,7 @@ function Dashboard() {
   const sendMoney = async () => {
     const token = localStorage.getItem("token")
     try {
-      const res = await axios.post("http://localhost:5000/send-money", { receiver_wallet: receiver, amount }, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await axios.post(`${API}/send-money`, { receiver_wallet: receiver, amount }, { headers: { Authorization: `Bearer ${token}` } })
       res.data.success ? toast.success(res.data.message) : toast.error(res.data.message)
       loadData()
     } catch (err) { toast.error(err.response?.data?.message || "Transfer failed") }
@@ -43,7 +44,7 @@ function Dashboard() {
     const wallet_id = localStorage.getItem("wallet_id")
     const token = localStorage.getItem("token")
     try {
-      const res = await axios.post("http://localhost:5000/deposit", { wallet_id, amount: depositAmount }, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await axios.post(`${API}/deposit`, { wallet_id, amount: depositAmount }, { headers: { Authorization: `Bearer ${token}` } })
       res.data.success ? toast.success(res.data.message) : toast.error(res.data.message)
       setDepositAmount(""); loadData()
     } catch (err) { toast.error(err.response?.data?.message || "Deposit failed") }
@@ -53,7 +54,7 @@ function Dashboard() {
     const wallet_id = localStorage.getItem("wallet_id")
     const token = localStorage.getItem("token")
     try {
-      const res = await axios.post("http://localhost:5000/withdraw", { wallet_id, amount: withdrawAmount }, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await axios.post(`${API}/withdraw`, { wallet_id, amount: withdrawAmount }, { headers: { Authorization: `Bearer ${token}` } })
       res.data.success ? toast.success(res.data.message) : toast.error(res.data.message)
       setWithdrawAmount(""); loadData()
     } catch (err) { toast.error(err.response?.data?.message || "Withdrawal failed") }

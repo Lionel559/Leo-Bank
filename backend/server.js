@@ -7,7 +7,14 @@ const jwt = require("jsonwebtoken")
 const { createClient } = require("@supabase/supabase-js")
 
 const app = express()
-app.use(cors())
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://leo-bank.vercel.app"  // replace with your actual Vercel URL after deployment
+  ],
+  credentials: true
+}))
 app.use(express.json())
 
 const supabase = createClient(
@@ -59,7 +66,7 @@ app.post("/register", async (req,res)=>{
     .select("*")
     .eq("email", email)
 
-  if(emailUser && emailUser.length > 0){
+  if(emailUser.length > 0){
     return res.json({ success:false, message:"Email already exists" })
   }
 
@@ -68,33 +75,13 @@ app.post("/register", async (req,res)=>{
     .select("*")
     .eq("phone", phone)
 
-  if(phoneUser && phoneUser.length > 0){
+  if(phoneUser.length > 0){
     return res.json({ success:false, message:"Phone already exists" })
   }
 
-  // ================== REFERRAL CHECK ==================
-  const REFERRAL_BONUS = 500
-  let referrerUser = null
-
-  if(referral){
-    // wallet_id is used as the referral code
-    const { data: referrerData } = await supabase
-      .from("users")
-      .select("*")
-      .eq("wallet_id", referral)
-
-    if(!referrerData || referrerData.length === 0){
-      return res.json({ success:false, message:"Invalid referral code" })
-    }
-
-    referrerUser = referrerData[0]
-  }
-
   const hashedPassword = await bcrypt.hash(password,10)
-  const wallet_id = "WAL" + Math.floor(100000000 + Math.random() * 900000000)
 
-  // new user gets 500 bonus if they used a valid referral code
-  const startingBalance = referrerUser ? REFERRAL_BONUS : 0
+  const wallet_id = "WAL" + Math.floor(100000000 + Math.random() * 900000000)
 
   const { data, error } = await supabase.from("users").insert([
     {
@@ -105,7 +92,7 @@ app.post("/register", async (req,res)=>{
       password: hashedPassword,
       referral,
       wallet_id,
-      balance: startingBalance
+      balance: 0
     }
   ])
 
@@ -113,40 +100,9 @@ app.post("/register", async (req,res)=>{
     return res.json({ success:false, message:error.message })
   }
 
-  // ================== REWARD REFERRER ==================
-  if(referrerUser){
-    // add 500 bonus to referrer balance
-    await supabase
-      .from("users")
-      .update({ balance: referrerUser.balance + REFERRAL_BONUS })
-      .eq("wallet_id", referrerUser.wallet_id)
-
-    // log bonus transaction for referrer
-    await supabase.from("transcations").insert([{
-      sender_wallet: wallet_id,
-      receiver_wallet: referrerUser.wallet_id,
-      amount: REFERRAL_BONUS,
-      status: "success",
-      type: "referral_bonus",
-      created_at: new Date()
-    }])
-
-    // log bonus transaction for new user
-    await supabase.from("transcations").insert([{
-      sender_wallet: wallet_id,
-      receiver_wallet: wallet_id,
-      amount: REFERRAL_BONUS,
-      status: "success",
-      type: "referral_bonus",
-      created_at: new Date()
-    }])
-  }
-
   res.json({
-    success: true,
-    message: referrerUser
-      ? `Account created! You and ${referrerUser.name} both received a N500 bonus!`
-      : "Account created successfully",
+    success:true,
+    message:"Account created successfully",
     user: data
   })
 })
