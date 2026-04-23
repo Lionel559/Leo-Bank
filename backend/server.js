@@ -11,7 +11,7 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://leo-bank-tau.vercel.app/"  // replace with your actual Vercel URL after deployment
+    "https://leo-bank-tau.vercel.app/"
   ],
   credentials: true
 }))
