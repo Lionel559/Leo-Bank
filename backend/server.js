@@ -1,9 +1,5 @@
 require("dotenv").config()
 
-// ✅ Debug - remove after fixing
-console.log("SUPABASE_URL:", process.env.SUPABASE_URL)
-console.log("SUPABASE_KEY:", process.env.SUPABASE_KEY ? "exists" : "missing")
-
 const express = require("express")
 const cors = require("cors")
 const bcrypt = require("bcrypt")
