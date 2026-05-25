@@ -1,11 +1,15 @@
-import { NavLink } from "react-router-dom"
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { FaBars, FaTimes, FaHome, FaExchangeAlt, FaUser, FaGift, FaSignOutAlt } from "react-icons/fa"
+import { NavLink, useNavigate } from "react-router-dom"
+import { FaExchangeAlt, FaGift, FaHome, FaSignOutAlt, FaUser } from "react-icons/fa"
 import "../styles/sidebar.css"
 
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", mobileLabel: "Home", icon: <FaHome /> },
+  { to: "/transactions", label: "Transactions", mobileLabel: "History", icon: <FaExchangeAlt /> },
+  { to: "/profile", label: "Profile", mobileLabel: "Profile", icon: <FaUser /> },
+  { to: "/referrals", label: "Referrals", mobileLabel: "Refer", icon: <FaGift /> },
+]
+
 function Sidebar() {
-  const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -13,34 +17,45 @@ function Sidebar() {
     navigate("/login", { replace: true })
   }
 
-  const closeMenu = () => setOpen(false)
-
   return (
     <>
-      {/* HAMBURGER — only visible on mobile via CSS */}
-      <button className="hamburger" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-        {open ? <FaTimes /> : <FaBars />}
-      </button>
+      <aside className="sidebar" aria-label="Desktop navigation">
+        <div>
+          <div className="sidebar-brand">
+            <span className="brand-mark">LB</span>
+            <div>
+              <h2 className="logo">Leo Bank</h2>
+              <p>Digital wallet</p>
+            </div>
+          </div>
 
-      {/* OVERLAY — dims page behind sidebar on mobile */}
-      {open && (
-        <div className="sidebar-overlay" onClick={closeMenu} />
-      )}
-
-      <div className={`sidebar ${open ? "open" : ""}`}>
-        <h2 className="logo">Leo Bank</h2>
-
-        <nav>
-          <NavLink to="/dashboard" onClick={closeMenu}><FaHome /> Dashboard</NavLink>
-          <NavLink to="/transactions" onClick={closeMenu}><FaExchangeAlt /> Transactions</NavLink>
-          <NavLink to="/profile" onClick={closeMenu}><FaUser /> Profile</NavLink>
-          <NavLink to="/referrals" onClick={closeMenu}><FaGift /> Referrals</NavLink>
-        </nav>
+          <nav>
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to}>
+                <span className="nav-icon">{item.icon}</span>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         <button className="logout" onClick={handleLogout}>
           <FaSignOutAlt /> Logout
         </button>
-      </div>
+      </aside>
+
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        {navItems.map((item) => (
+          <NavLink key={item.to} to={item.to}>
+            {item.icon}
+            <span>{item.mobileLabel}</span>
+          </NavLink>
+        ))}
+        <button type="button" onClick={handleLogout} aria-label="Logout">
+          <FaSignOutAlt />
+          <span>Out</span>
+        </button>
+      </nav>
     </>
   )
 }
