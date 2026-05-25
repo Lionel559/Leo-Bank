@@ -188,7 +188,7 @@ function Dashboard() {
           </div>
           <div className="user-chip">
             <div className="avatar">
-              {user?.image ? <img src={user.image} alt={`${user?.name || "Profile"} avatar`} /> : initials}
+              {user?.profile_image ? <img src={user.profile_image} alt={`${user?.name || "Profile"} avatar`} /> : initials}
             </div>
             <span>{user?.name}</span>
           </div>
@@ -290,7 +290,7 @@ function Dashboard() {
         <aside className="dashboard-secondary">
           <section className="profile-summary-card">
             <div className="profile-summary-icon">
-              {user?.image ? <img className="profile-summary-image" src={user.image} alt={`${user?.name || "Profile"} avatar`} /> : <FaUserCircle />}
+              {user?.profile_image ? <img className="profile-summary-image" src={user.profile_image} alt={`${user?.name || "Profile"} avatar`} /> : <FaUserCircle />}
             </div>
             <div>
               <span>Account Holder</span>

@@ -25,10 +25,10 @@ const supabase = createClient(
 const SECRET = "mysecretkey"
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
-const isValidImageDataUrl = (image) => {
-  if (!image || typeof image !== "string") return false
+const isValidImageDataUrl = (profileImage) => {
+  if (!profileImage || typeof profileImage !== "string") return false
 
-  const match = image.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/)
+  const match = profileImage.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/)
   if (!match || !ALLOWED_IMAGE_TYPES.includes(match[1])) return false
 
   try {
@@ -65,18 +65,19 @@ app.get("/", (req,res)=>{
 // ================== REGISTER ==================
 app.post("/register", async (req,res)=>{
 
-  const { name, email, phone, country, password, referral, image } = req.body
+  const { name, email, phone, country, password, referral, profile_image } = req.body
   const referralCode = (referral || "").trim().toUpperCase()
+  const profileImage = profile_image
 
   if(!name || !email || !phone || !password){
     return res.json({ success:false, message:"Fill all required fields" })
   }
 
-  if(!image){
+  if(!profileImage){
     return res.json({ success:false, message:"Profile picture is required" })
   }
 
-  if(!isValidImageDataUrl(image)){
+  if(!isValidImageDataUrl(profileImage)){
     return res.json({ success:false, message:"Profile picture must be jpg, jpeg, png, or webp" })
   }
 
@@ -133,7 +134,7 @@ app.post("/register", async (req,res)=>{
       country,
       password: hashedPassword,
       referral: referralCode,
-      image,
+      profile_image: profileImage,
       wallet_id,
       balance: 0
     }

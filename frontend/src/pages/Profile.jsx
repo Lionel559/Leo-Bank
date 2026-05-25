@@ -63,8 +63,8 @@ function Profile() {
     <div style={{ padding: "20px", maxWidth: "500px", width: "100%", boxSizing: "border-box" }}>
       <h2>Profile</h2>
 
-      {user.image ? (
-        <img src={user.image} alt="profile" style={avatarStyle} />
+      {user.profile_image ? (
+        <img src={user.profile_image} alt="profile" style={avatarStyle} />
       ) : (
         <div style={avatarStyle} aria-label="Default profile avatar">
           {getInitials(user.name)}

@@ -14,7 +14,7 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState("")
   const [loading, setLoading] = useState(false)
-  const [image, setImage] = useState("")
+  const [profileImage, setProfileImage] = useState("")
 
   const handleChange = (e) => { setForm({ ...form, [e.target.name]: e.target.value }) }
 
@@ -28,7 +28,7 @@ function Register() {
   const handleImage = (e) => {
     const file = e.target.files[0]
     if (!file) {
-      setImage("")
+      setProfileImage("")
       return
     }
 
@@ -38,7 +38,7 @@ function Register() {
 
     if (!isValidType) {
       const message = "Profile picture must be jpg, jpeg, png, or webp"
-      setImage("")
+      setProfileImage("")
       e.target.value = ""
       setMessage(message)
       toast.error(message)
@@ -47,10 +47,10 @@ function Register() {
 
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => { setImage(reader.result) }
+      reader.onloadend = () => { setProfileImage(reader.result) }
       reader.onerror = () => {
         const message = "Could not read profile picture"
-        setImage("")
+        setProfileImage("")
         setMessage(message)
         toast.error(message)
       }
@@ -63,14 +63,14 @@ function Register() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(form.email)) { setMessage("Please enter a valid email"); toast.error("Please enter a valid email"); return }
     if (form.phone.length < 7) { setMessage("Phone number is too short"); toast.error("Phone number is too short"); return }
-    if (!image) { setMessage("Profile picture is required"); toast.error("Profile picture is required"); return }
+    if (!profileImage) { setMessage("Profile picture is required"); toast.error("Profile picture is required"); return }
     if (form.password !== form.confirmPassword) { setMessage("Passwords do not match"); toast.error("Passwords do not match"); return }
 
     try {
       setLoading(true)
       const res = await axios.post(`${API}/register`, {
         name: form.name, email: form.email, phone: form.phone,
-        country: form.country, password: form.password, referral: form.referral.trim(), image
+        country: form.country, password: form.password, referral: form.referral.trim(), profile_image: profileImage
       })
 
       if (res.data.success) {
@@ -106,7 +106,7 @@ function Register() {
           </select>
 
           <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" onChange={handleImage} required />
-          {image && <img src={image} alt="preview" className="preview-image" />}
+          {profileImage && <img src={profileImage} alt="preview" className="preview-image" />}
 
           <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" onChange={handleChange} required />
           <div className="strength-bar"><div className={`strength level-${passwordStrength()}`}></div></div>
