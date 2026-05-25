@@ -15,7 +15,7 @@ app.use(cors({
   ],
   credentials: true
 }))
-app.use(express.json())
+app.use(express.json({ limit: "6mb" }))
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -23,6 +23,20 @@ const supabase = createClient(
 )
 
 const SECRET = "mysecretkey"
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+
+const isValidImageDataUrl = (image) => {
+  if (!image || typeof image !== "string") return false
+
+  const match = image.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/)
+  if (!match || !ALLOWED_IMAGE_TYPES.includes(match[1])) return false
+
+  try {
+    return Buffer.from(match[2], "base64").length > 0
+  } catch {
+    return false
+  }
+}
 
 // ================== AUTH MIDDLEWARE ==================
 const authenticate = (req,res,next)=>{
@@ -51,10 +65,19 @@ app.get("/", (req,res)=>{
 // ================== REGISTER ==================
 app.post("/register", async (req,res)=>{
 
-  const { name, email, phone, country, password, referral } = req.body
+  const { name, email, phone, country, password, referral, image } = req.body
+  const referralCode = (referral || "").trim().toUpperCase()
 
   if(!name || !email || !phone || !password){
     return res.json({ success:false, message:"Fill all required fields" })
+  }
+
+  if(!image){
+    return res.json({ success:false, message:"Profile picture is required" })
+  }
+
+  if(!isValidImageDataUrl(image)){
+    return res.json({ success:false, message:"Profile picture must be jpg, jpeg, png, or webp" })
   }
 
   if(!/^\d{11}$/.test(phone)){
@@ -83,6 +106,25 @@ app.post("/register", async (req,res)=>{
 
   const wallet_id = "WAL" + Math.floor(100000000 + Math.random() * 900000000)
 
+  if(referralCode){
+    if(referralCode === wallet_id){
+      return res.json({ success:false, message:"You cannot refer yourself" })
+    }
+
+    const { data: referrer, error: referralError } = await supabase
+      .from("users")
+      .select("wallet_id")
+      .eq("wallet_id", referralCode)
+
+    if(referralError){
+      return res.json({ success:false, message:"Unable to verify referral code" })
+    }
+
+    if(!referrer || referrer.length === 0){
+      return res.json({ success:false, message:"Invalid referral code" })
+    }
+  }
+
   const { data, error } = await supabase.from("users").insert([
     {
       name,
@@ -90,7 +132,8 @@ app.post("/register", async (req,res)=>{
       phone,
       country,
       password: hashedPassword,
-      referral,
+      referral: referralCode,
+      image,
       wallet_id,
       balance: 0
     }

@@ -132,6 +132,7 @@
 }
 
 .icon-button {
+  position: relative;
   display: inline-grid;
   width: 44px;
   height: 44px;
@@ -141,6 +142,138 @@
   color: var(--leo-ink);
   background: #ffffff;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.notification-wrap {
+  position: relative;
+}
+
+.notification-button {
+  overflow: visible;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #e5484d;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 30;
+  width: min(360px, calc(100vw - 28px));
+  padding: 14px;
+  border: 1px solid var(--leo-line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.18);
+}
+
+.notification-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf2ef;
+}
+
+.notification-dropdown-header strong {
+  color: var(--leo-ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.notification-dropdown-header span {
+  color: var(--leo-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notification-empty {
+  display: grid;
+  min-height: 124px;
+  place-items: center;
+  gap: 8px;
+  color: var(--leo-muted);
+  text-align: center;
+}
+
+.notification-empty svg {
+  color: var(--leo-green);
+  font-size: 20px;
+}
+
+.notification-item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf2ef;
+}
+
+.notification-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.notification-dot {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.notification-dot.credit {
+  background: var(--leo-green);
+}
+
+.notification-dot.debit {
+  background: var(--leo-red);
+}
+
+.notification-item strong {
+  display: block;
+  overflow: hidden;
+  color: var(--leo-ink);
+  font-size: 13px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-item p {
+  margin-top: 3px;
+  color: var(--leo-muted);
+  font-size: 11px;
+}
+
+.notification-item b {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.notification-item b.credit {
+  color: var(--leo-green);
+}
+
+.notification-item b.debit {
+  color: var(--leo-red);
 }
 
 .user-chip {
@@ -165,6 +298,14 @@
   background: var(--leo-green);
   font-size: 13px;
   font-weight: 800;
+}
+
+.avatar img,
+.profile-summary-image {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
 }
 
 .user-chip span {
@@ -468,6 +609,7 @@
   color: var(--leo-green);
   background: var(--leo-green-soft);
   font-size: 24px;
+  overflow: hidden;
 }
 
 .profile-summary-card span,

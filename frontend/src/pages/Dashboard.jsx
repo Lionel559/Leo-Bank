@@ -48,6 +48,8 @@ function Dashboard() {
   const [depositAmount, setDepositAmount] = useState("")
   const [withdrawAmount, setWithdrawAmount] = useState("")
   const [loading, setLoading] = useState(true)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   const loadData = useCallback(async () => {
     const wallet = localStorage.getItem("wallet_id")
@@ -57,7 +59,9 @@ function Dashboard() {
       const res = await axios.get(`${API}/balance/${wallet}`, { headers: { Authorization: `Bearer ${token}` } })
       setUser(res.data)
       const tx = await axios.get(`${API}/transactions`, { headers: { Authorization: `Bearer ${token}` } })
-      setTransactions(tx.data.transactions || [])
+      const nextTransactions = tx.data.transactions || []
+      setTransactions(nextTransactions)
+      setUnreadCount(nextTransactions.length)
     } catch {
       localStorage.clear(); navigate("/login")
     } finally { setLoading(false) }
@@ -103,6 +107,14 @@ function Dashboard() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
+  const toggleNotifications = () => {
+    setNotificationsOpen((isOpen) => {
+      const nextOpen = !isOpen
+      if (nextOpen) setUnreadCount(0)
+      return nextOpen
+    })
+  }
+
   if (loading) {
     return (
       <div className="dashboard dashboard-loading">
@@ -118,6 +130,7 @@ function Dashboard() {
   const firstName = user?.name?.split(" ")[0] || "there"
   const initials = getInitials(user?.name)
   const myWallet = localStorage.getItem("wallet_id")
+  const recentActivities = transactions.slice(0, 5)
 
   return (
     <div className="dashboard">
@@ -129,11 +142,54 @@ function Dashboard() {
         </div>
 
         <div className="dashboard-header-actions">
-          <button className="icon-button" type="button" aria-label="Notifications">
-            <FaBell />
-          </button>
+          <div className="notification-wrap">
+            <button className="icon-button notification-button" type="button" onClick={toggleNotifications} aria-label="Notifications" aria-expanded={notificationsOpen}>
+              <FaBell />
+              {unreadCount > 0 && <span className="notification-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+            </button>
+
+            {notificationsOpen && (
+              <div className="notification-dropdown">
+                <div className="notification-dropdown-header">
+                  <strong>Notifications</strong>
+                  <span>{recentActivities.length} recent</span>
+                </div>
+
+                {recentActivities.length === 0 ? (
+                  <div className="notification-empty">
+                    <FaBell />
+                    <p>No notifications yet</p>
+                  </div>
+                ) : recentActivities.map((tx, index) => {
+                  const isCredit = tx.receiver_wallet === myWallet
+                  const activityTitle = tx.type === "deposit"
+                    ? "Deposit successful"
+                    : tx.type === "withdraw"
+                      ? "Withdrawal successful"
+                      : isCredit
+                        ? `Money received from ${tx.sender_name}`
+                        : `Money sent to ${tx.receiver_name}`
+
+                  return (
+                    <div key={index} className="notification-item">
+                      <span className={`notification-dot ${isCredit ? "credit" : "debit"}`}></span>
+                      <div>
+                        <strong>{activityTitle}</strong>
+                        <p>{new Date(tx.created_at).toLocaleString()}</p>
+                      </div>
+                      <b className={isCredit ? "credit" : "debit"}>
+                        {isCredit ? "+" : "-"}{formatCurrency(Math.abs(Number(String(tx.amount ?? 0).replace(/,/g, ""))))}
+                      </b>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
           <div className="user-chip">
-            <div className="avatar">{initials}</div>
+            <div className="avatar">
+              {user?.image ? <img src={user.image} alt={`${user?.name || "Profile"} avatar`} /> : initials}
+            </div>
             <span>{user?.name}</span>
           </div>
           <button className="logout-button" type="button" onClick={handleLogout}>
@@ -234,7 +290,7 @@ function Dashboard() {
         <aside className="dashboard-secondary">
           <section className="profile-summary-card">
             <div className="profile-summary-icon">
-              <FaUserCircle />
+              {user?.image ? <img className="profile-summary-image" src={user.image} alt={`${user?.name || "Profile"} avatar`} /> : <FaUserCircle />}
             </div>
             <div>
               <span>Account Holder</span>

@@ -2,7 +2,11 @@ import { useState } from "react"
 import axios from "axios"
 import "../styles/auth.css"
 import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import API from "../config"
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+const ALLOWED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
 
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", country: "", password: "", confirmPassword: "", referral: "" })
@@ -23,9 +27,33 @@ function Register() {
 
   const handleImage = (e) => {
     const file = e.target.files[0]
+    if (!file) {
+      setImage("")
+      return
+    }
+
+    const extension = file.name.split(".").pop()?.toLowerCase()
+    const hasValidMime = !file.type || ALLOWED_IMAGE_TYPES.includes(file.type)
+    const isValidType = hasValidMime && ALLOWED_IMAGE_EXTENSIONS.includes(extension)
+
+    if (!isValidType) {
+      const message = "Profile picture must be jpg, jpeg, png, or webp"
+      setImage("")
+      e.target.value = ""
+      setMessage(message)
+      toast.error(message)
+      return
+    }
+
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => { setImage(reader.result) }
+      reader.onerror = () => {
+        const message = "Could not read profile picture"
+        setImage("")
+        setMessage(message)
+        toast.error(message)
+      }
       reader.readAsDataURL(file)
     }
   }
@@ -33,15 +61,16 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(form.email)) { setMessage("Please enter a valid email"); return }
-    if (form.phone.length < 7) { setMessage("Phone number is too short"); return }
-    if (form.password !== form.confirmPassword) { setMessage("Passwords do not match"); return }
+    if (!emailRegex.test(form.email)) { setMessage("Please enter a valid email"); toast.error("Please enter a valid email"); return }
+    if (form.phone.length < 7) { setMessage("Phone number is too short"); toast.error("Phone number is too short"); return }
+    if (!image) { setMessage("Profile picture is required"); toast.error("Profile picture is required"); return }
+    if (form.password !== form.confirmPassword) { setMessage("Passwords do not match"); toast.error("Passwords do not match"); return }
 
     try {
       setLoading(true)
       const res = await axios.post(`${API}/register`, {
         name: form.name, email: form.email, phone: form.phone,
-        country: form.country, password: form.password, referral: form.referral
+        country: form.country, password: form.password, referral: form.referral.trim(), image
       })
 
       if (res.data.success) {
@@ -49,10 +78,12 @@ function Register() {
         navigate("/login")
       } else {
         setMessage(res.data.message)
+        toast.error(res.data.message)
       }
     } catch (err) {
       console.error(err)
       setMessage("Registration failed")
+      toast.error("Registration failed")
     } finally {
       setLoading(false)
     }
@@ -74,7 +105,7 @@ function Register() {
             <option>Nigeria</option>
           </select>
 
-          <input type="file" onChange={handleImage} />
+          <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" onChange={handleImage} required />
           {image && <img src={image} alt="preview" className="preview-image" />}
 
           <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" onChange={handleChange} required />
@@ -86,7 +117,7 @@ function Register() {
             <label>Show Password</label>
           </div>
 
-          <input name="referral" placeholder="Referral Code (optional)" onChange={handleChange} />
+          <input name="referral" placeholder="Referral Code (optional)" value={form.referral} onChange={handleChange} />
 
           <div className="checkbox-row">
             <input type="checkbox" required />
